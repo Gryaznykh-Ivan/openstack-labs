@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Форма создания виртуальной машины</title>
+  </head>
+  <body>
+    <h2>Форма создания виртуальной машины</h2>
+    <form id="vmForm">
+      <label for="vm_name">VM name:</label><br />
+      <input type="text" id="vm_name" name="vm_name" /><br />
+      <label for="imageRef">Image Reference:</label><br />
+      <input type="text" id="imageRef" name="imageRef" /><br />
+      <label for="flavorRef">Flavor Reference:</label><br />
+      <input type="text" id="flavorRef" name="flavorRef" /><br />
+      <label for="networks">Networks (UUID):</label><br />
+      <input type="text" id="networks" name="networks" /><br /><br />
+      <input type="button" value="Создать" onclick="createVM()" />
+    </form>
+
+    <script>
+      function createVM() {
+        const vmName = document.getElementById("vm_name").value;
+        const imageRef = document.getElementById("imageRef").value;
+        const flavorRef = document.getElementById("flavorRef").value;
+        const networks = document
+          .getElementById("networks")
+          .value.split(",")
+          .map((uuid) => ({ uuid: uuid.trim() }));
+
+        const data = {
+          name: vmName,
+          imageRef: imageRef,
+          flavorRef: flavorRef,
+          networks: networks,
+        };
+
+        fetch("http://localhost:3300/create-vm", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            alert(
+              "VM создана. \n Login: root \n Password: " + data.server.adminPass
+            );
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
